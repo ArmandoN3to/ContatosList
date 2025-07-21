@@ -1,47 +1,56 @@
 package com.example.contatolist
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.contatolist.ui.theme.ContatoListTheme
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.contatolist.adapter.ContatoAdapter
+import com.example.contatolist.databinding.ActivityMainBinding
+import com.example.contatolist.models.Contato
+import com.example.contatolist.models.ContatoViewModel
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityMainBinding
+    private lateinit var adapter: ContatoAdapter
+
+    private val contatoViewModel: ContatoViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            ContatoListTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-            }
+
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        adapter = ContatoAdapter(emptyList()) { contato ->
+            val intent = Intent(this, DetailActivity::class.java)
+            intent.putExtra("contato", contato)
+            startActivity(intent)
+        }
+
+        binding.recyclerViewContacts.layoutManager = LinearLayoutManager(this)
+        binding.recyclerViewContacts.adapter = adapter
+
+        // Observa LiveData
+        contatoViewModel.contatos.observe(this) { listaAtual ->
+            adapter.updateList(listaAtual)
+        }
+
+        binding.fabAddContact.setOnClickListener {
+            val intent = Intent(this, AddContatoActivity::class.java)
+            startActivityForResult(intent, 200)
         }
     }
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    ContatoListTheme {
-        Greeting("Android")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 200 && resultCode == Activity.RESULT_OK) {
+            val novoContato = data?.getParcelableExtra<Contato>("novo_contato")
+            novoContato?.let {
+                contatoViewModel.adicionarContato(it)
+            }
+        }
     }
 }
