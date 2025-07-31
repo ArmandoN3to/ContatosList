@@ -33,7 +33,6 @@ class MainActivity : AppCompatActivity() {
         binding.recyclerViewContacts.layoutManager = LinearLayoutManager(this)
         binding.recyclerViewContacts.adapter = adapter
 
-        // Observa LiveData
         contatoViewModel.contatos.observe(this) { listaAtual ->
             adapter.updateList(listaAtual)
         }

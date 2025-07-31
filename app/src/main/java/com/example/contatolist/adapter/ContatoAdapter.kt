@@ -29,7 +29,6 @@ class ContatoAdapter(
         holder.binding.textViewName.text = contato.name
         holder.binding.textViewPhone.text = contato.phone
 
-        // Trata o ByteArray para Bitmap ou usa placeholder
         val photoBytes = contato.photo
         if (photoBytes != null) {
             val bitmap = BitmapFactory.decodeByteArray(photoBytes, 0, photoBytes.size)

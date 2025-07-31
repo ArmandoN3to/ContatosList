@@ -46,7 +46,6 @@ class AddContatoActivity : AppCompatActivity() {
                 setResult(Activity.RESULT_OK, resultIntent)
                 finish()
             } else {
-                // Você pode mostrar um Toast aqui se quiser
             }
         }
     }
